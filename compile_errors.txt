@@ -1,0 +1,4 @@
+﻿lib/supabase/server.ts(15,24): error TS7006: Parameter 'cookiesToSet' implicitly has an 'any' type.
+lib/supabase/server.ts(17,49): error TS7031: Binding element 'name' implicitly has an 'any' type.
+lib/supabase/server.ts(17,55): error TS7031: Binding element 'value' implicitly has an 'any' type.
+lib/supabase/server.ts(17,62): error TS7031: Binding element 'options' implicitly has an 'any' type.
