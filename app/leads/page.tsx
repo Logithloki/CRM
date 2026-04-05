@@ -10,6 +10,7 @@ import Spinner from "@/components/ui/Spinner";
 import EmptyState from "@/components/ui/EmptyState";
 
 const PER_PAGE = 25;
+const UNASSIGNED_FILTER_VALUE = "__unassigned__";
 
 interface PageProps {
     searchParams: Promise<{
@@ -56,7 +57,11 @@ async function fetchLeads(params: {
         query = query.eq("status", params.status as LeadStatus);
     }
     if (params.assignee && isAdmin) {
-        query = query.eq("assignee", params.assignee);
+        if (params.assignee === UNASSIGNED_FILTER_VALUE) {
+            query = query.is("assignee", null);
+        } else {
+            query = query.eq("assignee", params.assignee);
+        }
     }
 
     // Apply search

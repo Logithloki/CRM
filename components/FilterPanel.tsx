@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LEAD_STATUSES, STATUS_COLORS, UserRole } from "@/lib/types";
 
+const UNASSIGNED_FILTER_VALUE = "__unassigned__";
+
 export default function FilterPanel({ assignees }: { assignees: UserRole[] }) {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -127,6 +129,7 @@ export default function FilterPanel({ assignees }: { assignees: UserRole[] }) {
                                 suppressHydrationWarning
                             >
                                 <option value="">All Assignees</option>
+                                <option value={UNASSIGNED_FILTER_VALUE}>Unassigned</option>
                                 {assignees.map((assignee) => (
                                     <option key={assignee.id} value={assignee.display_name}>
                                         {assignee.display_name}
