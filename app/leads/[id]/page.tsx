@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Lead, Comment } from "@/lib/types";
+import { AssigneeOption, Lead, Comment } from "@/lib/types";
 import { getCurrentUserRole, getAssignees } from "@/lib/supabase/roles";
 import LeadDetailTabs from "./LeadDetailTabs";
 
@@ -13,38 +13,78 @@ export default async function LeadDetailPage({ params }: PageProps) {
     const { id } = await params;
     const supabase = await createClient();
 
-    // Get current user role + available assignees
-    const userRole = await getCurrentUserRole();
-    const isAdmin = userRole?.role === "admin";
-    const assignees = await getAssignees();
+    const [userRole, leadResult, commentsResult] = await Promise.all([
+        getCurrentUserRole(),
+        supabase
+            .from("leads")
+            .select("*")
+            .eq("id", id)
+            .single(),
+        supabase
+            .from("comments")
+            .select("id, lead_id, user_id, comment_text, created_at")
+            .eq("lead_id", id)
+            .order("created_at", { ascending: false }),
+    ]);
 
-    // Fetch lead
-    const { data: lead, error: leadError } = await supabase
-        .from("leads")
-        .select("*")
-        .eq("id", id)
-        .single();
+    const { data: lead, error: leadError } = leadResult;
 
     if (leadError || !lead) {
         notFound();
     }
 
-    // Fetch comments without JOIN, since no explicit Foreign Key exists
-    const { data: commentsRaw } = await supabase
-        .from("comments")
-        .select("*")
-        .eq("lead_id", id)
-        .order("created_at", { ascending: false });
+    const isAdmin = userRole?.role === "admin";
+    const { data: commentsRaw, error: commentsError } = commentsResult;
+    if (commentsError) {
+        console.error("Failed to fetch comments:", commentsError.message);
+    }
 
-    const comments: Comment[] = (commentsRaw || []).map((c: any) => {
-        const author = assignees.find((a) => a.user_id === c.user_id);
+    const commentRows = commentsRaw || [];
+
+    let assignees: AssigneeOption[] = [];
+    if (isAdmin) {
+        const allAssignees = await getAssignees();
+        assignees = allAssignees.map((assignee) => ({
+            id: assignee.id,
+            user_id: assignee.user_id,
+            display_name: assignee.display_name,
+        }));
+    } else {
+        const commenterIds = Array.from(
+            new Set(
+                commentRows
+                    .map((comment: any) => comment.user_id)
+                    .filter((userId: string | null | undefined) => Boolean(userId))
+            )
+        );
+
+        if (commenterIds.length > 0) {
+            const { data: commentAuthors, error: commentAuthorsError } = await supabase
+                .from("user_roles")
+                .select("id, user_id, display_name")
+                .in("user_id", commenterIds);
+
+            if (commentAuthorsError) {
+                console.error("Failed to fetch comment authors:", commentAuthorsError.message);
+            } else {
+                assignees = (commentAuthors || []) as AssigneeOption[];
+            }
+        }
+    }
+
+    const assigneeNameByUserId = new Map<string, string>();
+    for (const assignee of assignees) {
+        assigneeNameByUserId.set(assignee.user_id, assignee.display_name);
+    }
+
+    const comments: Comment[] = commentRows.map((c: any) => {
         return {
             id: c.id,
             lead_id: c.lead_id,
             user_id: c.user_id,
             comment_text: c.comment_text,
             created_at: c.created_at,
-            user_email: author?.display_name || "Unknown User",
+            user_email: assigneeNameByUserId.get(c.user_id) || "Unknown User",
         };
     });
 

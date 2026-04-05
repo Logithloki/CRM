@@ -48,6 +48,7 @@ export default function SearchBar() {
                 placeholder="Search by name, email, or phone..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                suppressHydrationWarning
                 className="input-field pl-10 pr-9"
             />
             {query && (

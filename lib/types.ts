@@ -7,6 +7,7 @@ export type LeadStatus =
     | "No Answer"
     | "Follow Up"
     | "Unqualified"
+    | "Not Interested"
     | "Closed"
     | "Call Later"
     | "Hindi Language"
@@ -56,6 +57,7 @@ export const LEAD_STATUSES: LeadStatus[] = [
     "No Answer",
     "Follow Up",
     "Unqualified",
+    "Not Interested",
     "Closed",
     "Call Later",
     "Hindi Language",
@@ -70,6 +72,7 @@ export const STATUS_COLORS: Record<LeadStatus, string> = {
     "No Answer": "bg-amber-50 text-amber-700 border-amber-200",
     "Follow Up": "bg-purple-50 text-purple-700 border-purple-200",
     Unqualified: "bg-red-50 text-red-700 border-red-200",
+    "Not Interested": "bg-slate-100 text-slate-700 border-slate-300",
     Closed: "bg-emerald-50 text-emerald-700 border-emerald-200",
     "Call Later": "bg-orange-50 text-orange-700 border-orange-200",
     "Hindi Language": "bg-indigo-50 text-indigo-700 border-indigo-200",
@@ -91,5 +94,11 @@ export interface UserRole {
     role: RoleType;       // admin or assignee
     display_name: string; // The name shown in Assignee dropdowns (e.g., "Suriya Kumar")
     created_at: string;
+}
+
+export interface AssigneeOption {
+    id: string;
+    user_id: string;
+    display_name: string;
 }
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Lead, LeadStatus, LEAD_STATUSES, STATUS_COLORS, UserRole } from "@/lib/types";
+import { AssigneeOption, Lead, LeadStatus, LEAD_STATUSES, STATUS_COLORS } from "@/lib/types";
 
 function formatDate(dateStr: string | null) {
     if (!dateStr) return "—";
@@ -31,12 +31,13 @@ export default function LeadInfo({
 }: {
     lead: Lead;
     isAdmin: boolean;
-    assignees: UserRole[];
+    assignees: AssigneeOption[];
 }) {
     const supabase = createClient();
     const [lead, setLead] = useState<Lead>(initialLead);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState("");
+    const [copiedField, setCopiedField] = useState<string>("");
 
     const updateField = async (field: string, value: string) => {
         setSaving(true);
@@ -58,6 +59,18 @@ export default function LeadInfo({
         } else {
             setSaved("success");
             setTimeout(() => setSaved(""), 2000);
+        }
+    };
+
+    const copyToClipboard = async (value: string, fieldKey: string) => {
+        try {
+            await navigator.clipboard.writeText(value);
+            setCopiedField(fieldKey);
+            setTimeout(() => {
+                setCopiedField((current) => (current === fieldKey ? "" : current));
+            }, 1400);
+        } catch (error) {
+            console.error("Copy failed:", error);
         }
     };
 
@@ -123,6 +136,32 @@ export default function LeadInfo({
                 {/* Read-only fields */}
                 {readOnlyFields.map((field) => {
                     const value = lead[field.key];
+
+                    if (field.key === "phone_number") {
+                        return (
+                            <div key={field.key} className="space-y-1.5">
+                                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {field.label}
+                                </p>
+                                {(value as string | null) ? (
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-sm text-gray-900">{value as string}</p>
+                                        <button
+                                            type="button"
+                                            onClick={() => copyToClipboard(value as string, field.key)}
+                                            className="text-xs text-blue-600 hover:text-blue-800 hover:underline"
+                                            title="Copy phone number"
+                                        >
+                                            {copiedField === field.key ? "Copied" : "Copy"}
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-gray-900">—</p>
+                                )}
+                            </div>
+                        );
+                    }
+
                     return (
                         <div key={field.key} className="space-y-1.5">
                             <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">

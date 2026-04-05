@@ -34,6 +34,7 @@ export default function LeadsTable({
     const [bulkStatus, setBulkStatus] = useState<string>("");
     const [bulkAssignee, setBulkAssignee] = useState<string>("");
     const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+    const [copiedPhoneLeadId, setCopiedPhoneLeadId] = useState<string | null>(null);
 
     // CRITICAL: Next.js Server Components pass down fresh data when the URL changes (like filters/search).
     // This hook forces the editable React local state to refresh when the server data arrives!
@@ -157,6 +158,25 @@ export default function LeadsTable({
         setIsBulkUpdating(false);
     };
 
+    const copyPhoneNumber = async (
+        event: React.MouseEvent<HTMLButtonElement>,
+        leadId: string,
+        phoneNumber: string | null
+    ) => {
+        event.stopPropagation();
+        if (!phoneNumber) return;
+
+        try {
+            await navigator.clipboard.writeText(phoneNumber);
+            setCopiedPhoneLeadId(leadId);
+            setTimeout(() => {
+                setCopiedPhoneLeadId((current) => (current === leadId ? null : current));
+            }, 1400);
+        } catch (error) {
+            console.error("Copy failed:", error);
+        }
+    };
+
     return (
         <div className="border border-gray-200 rounded-lg overflow-hidden relative">
             {isAdmin && selectedLeadIds.size > 0 && (
@@ -185,6 +205,7 @@ export default function LeadsTable({
                         <button
                             onClick={handleBulkUpdate}
                             disabled={isBulkUpdating || (!bulkStatus && !bulkAssignee)}
+                            suppressHydrationWarning
                             className="btn-primary py-1.5 px-4 text-sm whitespace-nowrap"
                         >
                             {isBulkUpdating ? "Updating..." : "Apply"}
@@ -255,7 +276,24 @@ export default function LeadsTable({
 
                                 {/* Phone */}
                                 <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
-                                    {lead.phone_number || "—"}
+                                    {lead.phone_number ? (
+                                        <div className="flex items-center gap-2">
+                                            <span>{lead.phone_number}</span>
+                                            <button
+                                                type="button"
+                                                onClick={(event) =>
+                                                    copyPhoneNumber(event, lead.id, lead.phone_number)
+                                                }
+                                                suppressHydrationWarning
+                                                className="text-xs text-blue-600 hover:text-blue-800 hover:underline"
+                                                title="Copy phone number"
+                                            >
+                                                {copiedPhoneLeadId === lead.id ? "Copied" : "Copy"}
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        "—"
+                                    )}
                                 </td>
 
                                 {/* Status — always editable dropdown */}

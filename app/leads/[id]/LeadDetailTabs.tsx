@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Lead, Comment, UserRole } from "@/lib/types";
+import { AssigneeOption, Lead, Comment } from "@/lib/types";
 import LeadInfo from "@/components/LeadInfo";
 import CommentSection from "@/components/CommentSection";
 
@@ -19,7 +19,7 @@ export default function LeadDetailTabs({
     lead: Lead;
     initialComments: Comment[];
     isAdmin: boolean;
-    assignees: UserRole[];
+    assignees: AssigneeOption[];
 }) {
     const [activeTab, setActiveTab] = useState("information");
 

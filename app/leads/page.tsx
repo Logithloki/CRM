@@ -28,7 +28,8 @@ async function fetchLeads(params: {
 }, userRole: UserRole | null) {
     const supabase = await createClient();
 
-    const page = parseInt(params.page || "1", 10);
+    const parsedPage = parseInt(params.page || "1", 10);
+    const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
     const from = (page - 1) * PER_PAGE;
     const to = from + PER_PAGE - 1;
 
@@ -36,7 +37,7 @@ async function fetchLeads(params: {
         .from("leads")
         .select(
             "id, full_name, email, phone_number, status, language, country, assignee, created_at, updated_at",
-            { count: "exact" }
+            { count: "estimated" }
         );
 
     // Role-based filtering: non-admins only see their assigned leads
@@ -90,7 +91,7 @@ async function fetchLeads(params: {
 
 async function LeadsContent({
     searchParams,
-    userRole,
+    leadsPromise,
     assignees,
 }: {
     searchParams: {
@@ -99,10 +100,10 @@ async function LeadsContent({
         search?: string;
         page?: string;
     };
-    userRole: UserRole | null;
+    leadsPromise: ReturnType<typeof fetchLeads>;
     assignees: UserRole[];
 }) {
-    const { leads, count, page, totalPages, isAdmin } = await fetchLeads(searchParams, userRole);
+    const { leads, count, page, totalPages, isAdmin } = await leadsPromise;
 
     return (
         <>
@@ -139,7 +140,11 @@ export default async function LeadsPage({ searchParams }: PageProps) {
     // Get current user role + available assignees
     const userRole = await getCurrentUserRole();
     const isAdmin = userRole?.role === "admin";
-    const assignees = await getAssignees();
+    const leadsPromise = fetchLeads(resolvedParams, userRole);
+    const assigneesPromise: Promise<UserRole[]> = isAdmin
+        ? getAssignees()
+        : Promise.resolve([]);
+    const assignees = await assigneesPromise;
 
     return (
         <div className="space-y-4">
@@ -170,7 +175,11 @@ export default async function LeadsPage({ searchParams }: PageProps) {
                     </div>
                 }
             >
-                <LeadsContent searchParams={resolvedParams} userRole={userRole} assignees={assignees} />
+                <LeadsContent
+                    searchParams={resolvedParams}
+                    leadsPromise={leadsPromise}
+                    assignees={assignees}
+                />
             </Suspense>
         </div>
     );

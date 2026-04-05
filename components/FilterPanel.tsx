@@ -64,6 +64,7 @@ export default function FilterPanel({ assignees }: { assignees: UserRole[] }) {
             {/* Toggle Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
+                suppressHydrationWarning
                 className={`btn-secondary flex items-center gap-2 ${isOpen ? "bg-gray-100 ring-1 ring-gray-200" : ""
                     }`}
             >
@@ -85,6 +86,7 @@ export default function FilterPanel({ assignees }: { assignees: UserRole[] }) {
                         {hasActiveFilters && (
                             <button
                                 onClick={clearFilters}
+                                suppressHydrationWarning
                                 className="text-xs text-blue-600 hover:text-blue-800 font-medium"
                             >
                                 Clear all
@@ -137,12 +139,14 @@ export default function FilterPanel({ assignees }: { assignees: UserRole[] }) {
                         <div className="pt-2 flex items-center justify-end gap-2 border-t border-gray-100 mt-2">
                             <button
                                 onClick={() => setIsOpen(false)}
+                                suppressHydrationWarning
                                 className="btn-secondary py-1.5 px-3 text-xs"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={applyFilters}
+                                suppressHydrationWarning
                                 className="btn-primary py-1.5 px-3 text-xs"
                             >
                                 Apply Filters

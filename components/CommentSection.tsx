@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Comment } from "@/lib/types";
+import { AssigneeOption, Comment } from "@/lib/types";
 
 function formatTimestamp(dateStr: string) {
     const date = new Date(dateStr);
@@ -35,7 +35,7 @@ export default function CommentSection({
     leadId: string;
     initialComments: Comment[];
     isAdmin: boolean;
-    assignees: { user_id: string; display_name: string; }[];
+    assignees: AssigneeOption[];
 }) {
     const supabase = createClient();
     const [comments, setComments] = useState<Comment[]>(initialComments);

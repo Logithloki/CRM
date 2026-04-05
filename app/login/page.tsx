@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import loginVisual from "../logooo.jpeg";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -33,68 +35,79 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-white">
-            <div className="w-full max-w-sm">
-                {/* Header */}
-                <div className="text-center mb-8">
-                    <h1 className="text-2xl font-bold text-gray-900">CRM</h1>
-                    <p className="text-sm text-gray-500 mt-1">Sign in to your account</p>
-                </div>
+        <div className="min-h-screen bg-[#f5f4ef] p-4 sm:p-6">
+            <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-5xl items-center justify-center sm:min-h-[calc(100vh-3rem)]">
+                <div className="grid w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm md:grid-cols-[1.15fr_1fr]">
+                    <div className="relative min-h-[260px] md:min-h-[620px]">
+                        <Image
+                            src={loginVisual}
+                            alt="CRM login visual"
+                            fill
+                            priority
+                            className="object-contain"
+                            sizes="(max-width: 768px) 100vw, 58vw"
+                        />
+                    </div>
 
-                {/* Form */}
-                <div className="card p-6">
-                    <form onSubmit={handleLogin} className="space-y-4">
-                        {error && (
-                            <div className="px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
-                                {error}
+                    <div className="p-6 sm:p-8 md:p-10">
+                        <div className="mb-8">
+                            <h1 className="text-4xl font-semibold tracking-tight text-gray-900">Sign in</h1>
+                            <p className="mt-1 text-sm text-gray-600">to access CRM</p>
+                        </div>
+
+                        <form onSubmit={handleLogin} className="space-y-5">
+                            {error && (
+                                <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+                                    {error}
+                                </div>
+                            )}
+
+                            <div>
+                                <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
+                                    Email
+                                </label>
+                                <input
+                                    id="email"
+                                    type="email"
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="you@company.com"
+                                    className="input-field"
+                                    autoComplete="email"
+                                />
                             </div>
-                        )}
 
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                                Email
-                            </label>
-                            <input
-                                id="email"
-                                type="email"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="you@company.com"
-                                className="input-field"
-                                autoComplete="email"
-                            />
-                        </div>
+                            <div>
+                                <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
+                                    Password
+                                </label>
+                                <input
+                                    id="password"
+                                    type="password"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className="input-field"
+                                    autoComplete="current-password"
+                                />
+                            </div>
 
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                                Password
-                            </label>
-                            <input
-                                id="password"
-                                type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="••••••••"
-                                className="input-field"
-                                autoComplete="current-password"
-                            />
-                        </div>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="btn-primary w-full py-2.5"
+                            >
+                                {loading ? "Signing in..." : "Sign in"}
+                            </button>
+                        </form>
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="btn-primary w-full py-2.5"
-                        >
-                            {loading ? "Signing in..." : "Sign in"}
-                        </button>
-                    </form>
+                        <p className="mt-10 text-center text-xs text-gray-500">
+                            Contact your administrator for account access
+                        </p>
+                    </div>
                 </div>
-
-                <p className="text-center text-xs text-gray-400 mt-6">
-                    Contact your administrator for account access
-                </p>
             </div>
         </div>
     );
