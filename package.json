@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "exit 1",
     "start": "next start",
     "lint": "next lint",
     "import-leads": "node scripts/import-leads.js"
