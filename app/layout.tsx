@@ -14,7 +14,10 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" className="dark">
-            <body className="min-h-screen"><MaintenancePage /></body>
+            <body className="min-h-screen">
+                <MaintenancePage />
+                <div className="hidden">{children}</div>
+            </body>
         </html>
     );
 }
