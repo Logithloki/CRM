@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import MaintenancePage from "@/components/MaintenancePage";
 
 export const metadata: Metadata = {
     title: "CRM Dashboard",
@@ -13,7 +14,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" className="dark">
-            <body className="min-h-screen">{children}</body>
+            <body className="min-h-screen"><MaintenancePage /></body>
         </html>
     );
 }
