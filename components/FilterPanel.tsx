@@ -15,16 +15,19 @@ export default function FilterPanel({ assignees }: { assignees: UserRole[] }) {
 
     const activeStatus = searchParams.get("status") || "";
     const activeAssignee = searchParams.get("assignee") || "";
-    const hasActiveFilters = Boolean(activeStatus || activeAssignee);
+    const activeSource = searchParams.get("source") || "";
+    const hasActiveFilters = Boolean(activeStatus || activeAssignee || activeSource);
 
     const [localStatus, setLocalStatus] = useState(activeStatus);
     const [localAssignee, setLocalAssignee] = useState(activeAssignee);
+    const [localSource, setLocalSource] = useState(activeSource);
 
     // Sync local state when opened so it matches active URL
     useEffect(() => {
         if (isOpen) {
             setLocalStatus(searchParams.get("status") || "");
             setLocalAssignee(searchParams.get("assignee") || "");
+            setLocalSource(searchParams.get("source") || "");
         }
     }, [isOpen, searchParams]);
 
@@ -47,6 +50,9 @@ export default function FilterPanel({ assignees }: { assignees: UserRole[] }) {
         if (localAssignee) params.set("assignee", localAssignee);
         else params.delete("assignee");
 
+        if (localSource) params.set("source", localSource);
+        else params.delete("source");
+
         params.set("page", "1");
         router.push(`/leads?${params.toString()}`);
         setIsOpen(false);
@@ -56,6 +62,7 @@ export default function FilterPanel({ assignees }: { assignees: UserRole[] }) {
         const params = new URLSearchParams(searchParams);
         params.delete("status");
         params.delete("assignee");
+        params.delete("source");
         params.set("page", "1");
         router.push(`/leads?${params.toString()}`);
         setIsOpen(false);
@@ -135,6 +142,23 @@ export default function FilterPanel({ assignees }: { assignees: UserRole[] }) {
                                         {assignee.display_name}
                                     </option>
                                 ))}
+                            </select>
+                        </div>
+
+                        {/* Source Filter */}
+                        <div className="space-y-1.5">
+                            <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Source
+                            </label>
+                            <select
+                                value={localSource}
+                                onChange={(e) => setLocalSource(e.target.value)}
+                                className="select-field"
+                                suppressHydrationWarning
+                            >
+                                <option value="">All Sources</option>
+                                <option value="WTP">WTP (WhatsApp Traffic)</option>
+                                <option value="STP">STP (Standard Pipeline)</option>
                             </select>
                         </div>
 

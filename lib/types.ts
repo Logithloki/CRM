@@ -14,6 +14,8 @@ export type LeadStatus =
     | "Other Language"
     | "Retention";
 
+export type LeadSource = "WTP" | "STP";
+
 export interface Lead {
     id: string;
     full_name: string;
@@ -23,6 +25,7 @@ export interface Lead {
     language: string | null;
     country: string | null;
     assignee: string | null;
+    source: LeadSource;
     created_at: string;
     updated_at: string | null;
 }
@@ -39,6 +42,7 @@ export interface Comment {
 export interface LeadsFilterParams {
     status?: LeadStatus;
     assignee?: string;
+    source?: LeadSource;
     search?: string;
     page?: number;
     perPage?: number;

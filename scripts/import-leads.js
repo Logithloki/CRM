@@ -100,6 +100,9 @@ const COLUMN_MAP = {
     "country": "country",
     "location": "country",
     "region": "country",
+    "address": "country",
+    "state": "country",
+    "city": "country",
 
     // assignee
     "assignee": "assignee",
@@ -508,16 +511,36 @@ function printListWithLimit(items, title, limit = 20) {
 
 // ── Main ─────────────────────────────────────────────────────
 
+const VALID_SOURCES = ["WTP", "STP"];
+
 async function main() {
-    const inputPaths = process.argv.slice(2);
+    // Parse optional --source flag: --source WTP or --source STP
+    const rawArgs = process.argv.slice(2);
+    let leadSource = "STP"; // default
+    const inputPaths = [];
+
+    for (let i = 0; i < rawArgs.length; i++) {
+        if (rawArgs[i] === "--source" && rawArgs[i + 1]) {
+            const val = rawArgs[++i].toUpperCase();
+            if (!VALID_SOURCES.includes(val)) {
+                console.error(`❌ Invalid --source value "${val}". Must be one of: ${VALID_SOURCES.join(", ")}`);
+                process.exit(1);
+            }
+            leadSource = val;
+        } else {
+            inputPaths.push(rawArgs[i]);
+        }
+    }
+
+    console.log(`\n📌 Lead source: ${leadSource}`);
 
     if (inputPaths.length === 0) {
         console.error(
             "No input path provided.\n\n" +
             "Usage:\n" +
-            "  node scripts/import-leads.js ./excel/leads_1.xlsx ./excel/leads_2.xlsx\n" +
-            "  node scripts/import-leads.js ./excel\n" +
-            "  npm run import-leads -- ./excel"
+            "  node scripts/import-leads.js ./excel/leads_1.xlsx --source WTP\n" +
+            "  node scripts/import-leads.js ./excel --source STP\n" +
+            "  npm run import-leads -- ./excel --source WTP"
         );
         process.exit(1);
     }
@@ -619,6 +642,9 @@ async function main() {
                     lead.created_at = new Date().toISOString();
                     defaultedCreatedAtCount++;
                 }
+
+                // Stamp the source from the --source flag
+                lead.source = leadSource;
 
                 validLeads.push(lead);
             }

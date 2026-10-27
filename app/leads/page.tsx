@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { Lead, LeadStatus, UserRole } from "@/lib/types";
+import { Lead, LeadSource, LeadStatus, UserRole } from "@/lib/types";
 import { getCurrentUserRole, getAssignees } from "@/lib/supabase/roles";
 import LeadsTable from "@/components/LeadsTable";
 import FilterPanel from "@/components/FilterPanel";
@@ -16,6 +16,7 @@ interface PageProps {
     searchParams: Promise<{
         status?: string;
         assignee?: string;
+        source?: string;
         search?: string;
         page?: string;
     }>;
@@ -24,6 +25,7 @@ interface PageProps {
 async function fetchLeads(params: {
     status?: string;
     assignee?: string;
+    source?: string;
     search?: string;
     page?: string;
 }, userRole: UserRole | null) {
@@ -37,7 +39,7 @@ async function fetchLeads(params: {
     let query = supabase
         .from("leads")
         .select(
-            "id, full_name, email, phone_number, status, language, country, assignee, created_at, updated_at",
+            "id, full_name, email, phone_number, status, language, country, assignee, source, created_at, updated_at",
             { count: "estimated" }
         );
 
@@ -62,6 +64,9 @@ async function fetchLeads(params: {
         } else {
             query = query.eq("assignee", params.assignee);
         }
+    }
+    if (params.source && ["WTP", "STP"].includes(params.source.toUpperCase())) {
+        query = query.eq("source", params.source.toUpperCase() as LeadSource);
     }
 
     // Apply search

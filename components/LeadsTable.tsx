@@ -232,6 +232,7 @@ export default function LeadsTable({
                             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Email</th>
                             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Phone</th>
                             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Status</th>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Source</th>
                             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Assignee</th>
                             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Country</th>
                             <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Created</th>
@@ -313,6 +314,19 @@ export default function LeadsTable({
                                             </option>
                                         ))}
                                     </select>
+                                </td>
+
+                                {/* Source Badge */}
+                                <td className="px-4 py-3 whitespace-nowrap">
+                                    <span
+                                        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border ${
+                                            lead.source === "WTP"
+                                                ? "bg-green-50 text-green-700 border-green-200"
+                                                : "bg-slate-100 text-slate-600 border-slate-300"
+                                        }`}
+                                    >
+                                        {lead.source ?? "STP"}
+                                    </span>
                                 </td>
 
                                 {/* Assignee — admin: dropdown, non-admin: read-only */}
