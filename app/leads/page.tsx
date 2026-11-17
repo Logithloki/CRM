@@ -107,6 +107,7 @@ async function LeadsContent({
     searchParams: {
         status?: string;
         assignee?: string;
+        source?: string;
         search?: string;
         page?: string;
     };
@@ -121,7 +122,7 @@ async function LeadsContent({
                 <EmptyState
                     title="No leads found"
                     description={
-                        searchParams.search || searchParams.status || searchParams.assignee
+                        searchParams.search || searchParams.status || searchParams.assignee || searchParams.source
                             ? "Try adjusting your filters or search query."
                             : isAdmin
                                 ? "No leads have been added yet."
@@ -170,11 +171,9 @@ export default async function LeadsPage({ searchParams }: PageProps) {
                         <SearchBar />
                     </Suspense>
                 </div>
-                {isAdmin && (
-                    <Suspense fallback={null}>
-                        <FilterPanel assignees={assignees} />
-                    </Suspense>
-                )}
+                <Suspense fallback={null}>
+                    <FilterPanel assignees={assignees} isAdmin={isAdmin} />
+                </Suspense>
             </div>
 
             {/* Table */}

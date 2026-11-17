@@ -6,7 +6,13 @@ import { LEAD_STATUSES, STATUS_COLORS, UserRole } from "@/lib/types";
 
 const UNASSIGNED_FILTER_VALUE = "__unassigned__";
 
-export default function FilterPanel({ assignees }: { assignees: UserRole[] }) {
+export default function FilterPanel({
+    assignees = [],
+    isAdmin = false,
+}: {
+    assignees: UserRole[];
+    isAdmin?: boolean;
+}) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -16,7 +22,9 @@ export default function FilterPanel({ assignees }: { assignees: UserRole[] }) {
     const activeStatus = searchParams.get("status") || "";
     const activeAssignee = searchParams.get("assignee") || "";
     const activeSource = searchParams.get("source") || "";
-    const hasActiveFilters = Boolean(activeStatus || activeAssignee || activeSource);
+    const hasActiveFilters = Boolean(
+        activeStatus || (isAdmin && activeAssignee) || activeSource
+    );
 
     const [localStatus, setLocalStatus] = useState(activeStatus);
     const [localAssignee, setLocalAssignee] = useState(activeAssignee);
@@ -47,8 +55,12 @@ export default function FilterPanel({ assignees }: { assignees: UserRole[] }) {
         if (localStatus) params.set("status", localStatus);
         else params.delete("status");
 
-        if (localAssignee) params.set("assignee", localAssignee);
-        else params.delete("assignee");
+        if (isAdmin) {
+            if (localAssignee) params.set("assignee", localAssignee);
+            else params.delete("assignee");
+        } else {
+            params.delete("assignee");
+        }
 
         if (localSource) params.set("source", localSource);
         else params.delete("source");
@@ -124,26 +136,28 @@ export default function FilterPanel({ assignees }: { assignees: UserRole[] }) {
                             </select>
                         </div>
 
-                        {/* Assignee Filter */}
-                        <div className="space-y-1.5">
-                            <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Assignee
-                            </label>
-                            <select
-                                value={localAssignee}
-                                onChange={(e) => setLocalAssignee(e.target.value)}
-                                className="select-field"
-                                suppressHydrationWarning
-                            >
-                                <option value="">All Assignees</option>
-                                <option value={UNASSIGNED_FILTER_VALUE}>Unassigned</option>
-                                {assignees.map((assignee) => (
-                                    <option key={assignee.id} value={assignee.display_name}>
-                                        {assignee.display_name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                        {/* Assignee Filter - only shown for admins */}
+                        {isAdmin && (
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Assignee
+                                </label>
+                                <select
+                                    value={localAssignee}
+                                    onChange={(e) => setLocalAssignee(e.target.value)}
+                                    className="select-field"
+                                    suppressHydrationWarning
+                                >
+                                    <option value="">All Assignees</option>
+                                    <option value={UNASSIGNED_FILTER_VALUE}>Unassigned</option>
+                                    {assignees.map((assignee) => (
+                                        <option key={assignee.id} value={assignee.display_name}>
+                                            {assignee.display_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
 
                         {/* Source Filter */}
                         <div className="space-y-1.5">
